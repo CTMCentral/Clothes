@@ -2,7 +2,7 @@
 
 namespace TungstenVn\Clothes\form;
 
-use pocketmine\Player;
+use pocketmine\player\Player;
 use TungstenVn\Clothes\Clothes;
 
 use jojoe77777\FormAPI\SimpleForm;
