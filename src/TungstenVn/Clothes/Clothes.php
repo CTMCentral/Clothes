@@ -64,11 +64,6 @@ class Clothes extends PluginBase implements Listener
     {
         $name = $e->getPlayer()->getName();
         $skin = $e->getPlayer()->getSkin();
-        if (preg_replace('/\s+/', '', $skin->getGeometryData()) != preg_replace('/\s+/', '', file_get_contents($this->getDataFolder() . "steve.json"))) {
-            $this->getServer()->broadcastMessage("§bClothes: §rPlayer §6" . strtolower($name) . "§r is using default/4d skin");
-        }elseif (strlen($skin->getSkinData()) == 8192) {
-            $this->getServer()->broadcastMessage("§bClothes: §rPlayer §6" . strtolower($name) . "§r is using 64x32 skin size");
-        }
         $saveSkin = new saveSkin();
         $saveSkin->saveSkin($skin, $name);
     }
