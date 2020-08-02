@@ -34,7 +34,7 @@ class saveSkin {
         $skinPos = 0;
         $image = imagecreatetruecolor($width, $height);
         if($image === false) {
-            Clothes::$instance->getServer()->broadcastMessage("An error occur on Clothes plugin,id: 2");
+            //Clothes::$instance->getServer()->broadcastMessage("An error occur on Clothes plugin,id: 2");
             return null;
         }
         // Make background transparent
