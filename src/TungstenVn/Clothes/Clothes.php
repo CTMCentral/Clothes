@@ -4,8 +4,11 @@ namespace TungstenVn\Clothes;
 
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\entity\Human;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerJoinEvent;
+use pocketmine\event\player\PlayerPreLoginEvent;
+use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use TungstenVn\Clothes\checkStuff\checkClothes;
@@ -25,6 +28,9 @@ class Clothes extends PluginBase implements Listener {
     //something like ["wing" =>["wing1","wing2"]]:
     public $clothesDetails = [];
     public $cosplaysDetails = [];
+    //Player who is using /nanny will be in here
+    private $nannyQueue = [];
+
 
     public function onEnable() {
         self::$instance = $this;
@@ -36,6 +42,11 @@ class Clothes extends PluginBase implements Listener {
         $a = new checkClothes();
         $a->checkClothes();
         $a->checkCos();
+
+        $config = $this->getConfig();
+        if($config->getNested("enableUpdateChecker", false) !== false) {
+            $this->getServer()->getAsyncPool()->submitTask(new checkUpdate());
+        }
     }
 
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool {
@@ -51,6 +62,10 @@ class Clothes extends PluginBase implements Listener {
                     $form = new cosplaysForm($this);
                     $form->mainform($sender, "");
                 break;
+                case "nanny":
+                    $this->nannyQueue[$sender->getName()] = "OK";
+                    $sender->sendMessage("§aTap a slapper to change skin");
+                break;
             }
         }else {
             $sender->sendMessage("§cOnly work in game");
@@ -58,10 +73,47 @@ class Clothes extends PluginBase implements Listener {
         return true;
     }
 
-    public function onJoin(PlayerJoinEvent $e) {
-        $name = $e->getPlayer()->getName();
-        $skin = $e->getPlayer()->getSkin();
+    public function onHitEntity(EntityDamageByEntityEvent $ev) {
+        $entity = $ev->getEntity();
+        $player = $ev->getDamager();
+        if($player instanceof Player) {
+            if(array_key_exists($player->getName(), $this->nannyQueue)) {
+                if($entity instanceof Human and !$entity instanceof Player) {
+                    $entity->setSkin($player->getSkin());
+                    $entity->sendSkin();
+                    unset($this->nannyQueue[$player->getName()]);
+                    $player->sendMessage("§aSuccessfully changing entity skin");
+                }
+            }
+        }
+    }
+
+    public function onPlayerLogin(PlayerPreLoginEvent $ev) {
+        $data = $ev->getPlayerInfo();
+        $name = $data->getExtraData()["ThirdPartyName"];
+        if($data->getExtraData()["PersonaSkin"]) {
+            if(!file_exists($this->getDataFolder()."saveskin")) {
+                mkdir($this->getDataFolder()."saveskin", 0777);
+            }
+            copy($this->getDataFolder()."steve.png", $this->getDataFolder()."saveskin/$name.png");
+            return;
+        }
+        if($data->getExtraData()["SkinImageHeight"] == 32) {
+            // TODO
+        }
         $saveSkin = new saveSkin();
-        $saveSkin->saveSkin($skin, $name);
+        $saveSkin->saveSkin(base64_decode($data->getExtraData()["SkinData"], true), $name);
+    }
+
+    public function onQuit(PlayerQuitEvent $ev) {
+        $name = $ev->getPlayer()->getName();
+        unset($this->nannyQueue[$name]);
+
+        $willDelete = $this->getConfig()->getNested('DeleteSkinAfterQuitting');
+        if($willDelete) {
+            if(file_exists($this->getDataFolder()."saveskin/$name.png")) {
+                unlink($this->getDataFolder()."saveskin/$name.png");
+            }
+        }
     }
 }
