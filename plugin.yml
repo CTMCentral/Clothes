@@ -16,5 +16,8 @@ commands:
     description: Clothes commands
   nanny:
     description: Clothes commands
-    permission: nanny.clothes.command
+    permission: clothes.command.nanny
+permissions:
+  clothes.command.nanny:
+    default: op
 ...
