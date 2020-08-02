@@ -8,14 +8,14 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
-
+use TungstenVn\Clothes\checkStuff\checkClothes;
+use TungstenVn\Clothes\checkStuff\checkRequirement;
 use TungstenVn\Clothes\form\clothesForm;
 use TungstenVn\Clothes\form\cosplaysForm;
 use TungstenVn\Clothes\skinStuff\saveSkin;
-use TungstenVn\Clothes\checkStuff\checkRequirement;
-use TungstenVn\Clothes\checkStuff\checkClothes;
-class Clothes extends PluginBase implements Listener
-{
+
+class Clothes extends PluginBase implements Listener {
+
     /** @var self $instance */
     public static $instance;
 
@@ -26,8 +26,7 @@ class Clothes extends PluginBase implements Listener
     public $clothesDetails = [];
     public $cosplaysDetails = [];
 
-    public function onEnable()
-    {
+    public function onEnable() {
         self::$instance = $this;
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
 
@@ -39,29 +38,27 @@ class Clothes extends PluginBase implements Listener
         $a->checkCos();
     }
 
-    public function onCommand(CommandSender $sender, Command $command, String $label, array $args): bool
-    {
-        if ($sender instanceof Player) {
-            switch (strtolower($command->getName())) {
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool {
+        if($sender instanceof Player) {
+            switch(strtolower($command->getName())) {
                 case "clo":
                 case "clothes":
                     $form = new clothesForm($this);
                     $form->mainform($sender, "");
-                    break;
+                break;
                 case "cos":
                 case "cosplay":
                     $form = new cosplaysForm($this);
                     $form->mainform($sender, "");
-                    break;
+                break;
             }
-        } else {
+        }else {
             $sender->sendMessage("§cOnly work in game");
         }
         return true;
     }
 
-    public function onJoin(PlayerJoinEvent $e)
-    {
+    public function onJoin(PlayerJoinEvent $e) {
         $name = $e->getPlayer()->getName();
         $skin = $e->getPlayer()->getSkin();
         $saveSkin = new saveSkin();

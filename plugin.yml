@@ -3,7 +3,7 @@ name: Clothes
 version: 4.0.0
 main: TungstenVn\Clothes\Clothes
 api:
-- 4.0.0
+  - 4.0.0
 author: TungstenVn
 commands:
   clo:
