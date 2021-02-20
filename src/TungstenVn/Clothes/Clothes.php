@@ -32,7 +32,7 @@ class Clothes extends PluginBase implements Listener {
     private $nannyQueue = [];
 
 
-    public function onEnable() {
+    public function onEnable() : void {
         self::$instance = $this;
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
 
